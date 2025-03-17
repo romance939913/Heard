@@ -4,5 +4,6 @@ flask_login
 flask_jwt_extended
 flask_sqlalchemy
 flask_cors
+datetime
 python-dotenv
 psycopg2-binary

@@ -3,6 +3,7 @@ from flask_bcrypt import Bcrypt
 from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity
 from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
+from datetime import datetime, timedelta, timezone
 from config import Config
 import os
 import psycopg2
@@ -14,10 +15,11 @@ CORS(app)
 # setup password encryption
 bcrypt = Bcrypt(app)
 
-# setup JWT user authorization
+# setup JWT and database
 app.config['SQLALCHEMY_DATABASE_URI'] = f"postgresql://brennanromance:{Config.POSTGRESQL_PASSWORD}@localhost/heard"
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config["JWT_SECRET_KEY"] = "super-secret"  # Change this in production
+app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(hours=168)
 
 db = SQLAlchemy(app)
 jwt = JWTManager(app)
@@ -161,7 +163,31 @@ def create_suggestion():
     db.session.add(new_suggestion)
     db.session.commit()
 
-    return jsonify(title=title, description=description, user_id=user_id, company_id=company_id, product_id=product_id, upvotes=0, downvotes=0), 200
+    return jsonify(title=title, description=description, user_id=user_id, company_id=company_id, product_id=product_id, upvotes=0, downvotes=0), 201
+
+
+@app.patch("/api/suggestion")
+@jwt_required()
+def update_suggestion():
+    data = request.get_json()
+    
+    if not data or not data.get("id"):
+        return jsonify({"msg": "Missing required fields"}), 400
+    
+    id = data["id"]
+    suggestion = Suggestion.query.get(id)
+
+    if 'upvotes' in data:
+        suggestion.upvotes = data["upvotes"]
+    if 'downvotes' in data:
+        suggestion.downvotes = data["downvotes"]
+    if 'title' in data:
+        suggestion.title = data["title"]
+    if 'description' in data:
+        suggestion.description = data["description"]
+
+    db.session.commit()
+    return jsonify(suggestion.to_dict()), 201
 
 
 @app.get("/api/suggestion")
@@ -181,6 +207,26 @@ def get_suggestions():
     else:
         suggestions = Suggestion.query.filter_by(company_id=filter_id)
     return jsonify([suggestion.to_dict() for suggestion in suggestions]), 201
+
+
+@app.delete("/api/suggestion")
+@jwt_required()
+def delete_suggestion():
+    data = request.get_json()
+
+    if not data or not data.get("id") or not data.get("user_id"):
+        return jsonify({"msg": "Missing required fields"}), 400
+    
+    user_id = data["user_id"]
+    id = data["id"]
+
+    suggestion = db.session.query(Suggestion).filter_by(id=id).first()
+    if suggestion.user_id == user_id:
+        db.session.delete(suggestion)
+        db.session.commit()
+        return jsonify(suggestion.to_dict()), 201
+    else:
+        return jsonify({"msg": "user_id doesn't match"}), 400
 
 
 # user auth routes
@@ -227,4 +273,15 @@ def login():
     return jsonify(access_token=access_token), 200
 
 
-        
+# @app.after_request
+# def refresh_expiring_jwts(response):
+#     try:
+#         exp_timestamp = get_jwt()["exp"]
+#         now = datetime.now(timezone.utc)
+#         target_timestamp = datetime.timestamp(now + timedelta(minutes=30))
+#         if target_timestamp > exp_timestamp:
+#             access_token = create_access_token(identity=get_jwt_identity())
+#         return response
+#     except (RuntimeError, KeyError):
+#         # Case where there is not a valid JWT. Just return the original response
+#         return response
