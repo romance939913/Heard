@@ -6,7 +6,7 @@ flask-server/config.py
 # dependencies
 /client/node_modules
 /client/.pnp
-client/.pnp.js
+/client/.pnp.js
 
 # testing
 /coverage
