@@ -1,8 +1,10 @@
+import React from 'react'
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { connect } from 'react-redux';
 import Login from './components/userAuth/login';
 import Signin from './components/userAuth/signin';
 import Feed from './components/feed/feed';
-import ProtectedRoutes from './util/protectedRoutes';
+import ProtectedRoutes from './protectedRoutes';
 
 function App() {
   return (
@@ -11,11 +13,15 @@ function App() {
         <Route element={<Login/>} path="/login"/>
         <Route element={<Signin/>} path="/signin"/>
         <Route element={<ProtectedRoutes/>}>
-          <Route element={<Feed/>} path="/"/>
+          <Route element={<Feed />} path="/" />
         </Route>
       </Routes>
     </BrowserRouter>
   )
 }
 
-export default App
+const mapStateToProps = state => ({
+  loggedin: state.session.id
+})
+
+export default connect(mapStateToProps, null)(App);

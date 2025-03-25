@@ -1,12 +1,10 @@
-from flask import Flask, request, render_template, jsonify
+from flask import Flask, request, jsonify, make_response
 from flask_bcrypt import Bcrypt
-from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity
+from flask_jwt_extended import JWTManager, create_access_token, set_access_cookies, jwt_required, get_jwt_identity
 from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
 from datetime import datetime, timedelta, timezone
 from config import Config
-import os
-import psycopg2
 
 # setup Flask app
 app = Flask(__name__)
@@ -18,7 +16,9 @@ bcrypt = Bcrypt(app)
 # setup JWT and database
 app.config['SQLALCHEMY_DATABASE_URI'] = f"postgresql://brennanromance:{Config.POSTGRESQL_PASSWORD}@localhost/heard"
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.config["JWT_SECRET_KEY"] = "super-secret"  # Change this in production
+app.config['JWT_TOKEN_LOCATION'] = ['cookies']
+app.config['JWT_ACCESS_COOKIE_PATH'] = '/api/'
+app.config["JWT_SECRET_KEY"] = Config.SECRET_KEY_JWT  
 app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(hours=168)
 
 db = SQLAlchemy(app)
@@ -251,6 +251,8 @@ def register():
     db.session.commit()
 
     access_token = create_access_token(identity=new_user.email)
+    response = make_response("Cookie set")
+    response.set_cookie('access_token', access_token, path='/api')
     return jsonify(access_token=access_token), 200
 
 
@@ -270,6 +272,8 @@ def login():
         return jsonify({"msg": "Invalid credentials"}), 401
 
     access_token = create_access_token(identity=user.email)
+    response = make_response("Cookie set")
+    response.set_cookie('access_token', access_token, path='/api')
     return jsonify(access_token=access_token), 200
 
 
