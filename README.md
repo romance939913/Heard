@@ -1,0 +1,1 @@
+Heard is a website for users to voice their suggestions to the brands and products they know and love dearly. Users can make suggestions on a company/product page, other users who agree can upvote or leave comments, and then companies have visibility into what their users want to see.
