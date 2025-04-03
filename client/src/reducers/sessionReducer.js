@@ -8,8 +8,9 @@ const sessionSlice = createSlice({
     },
     reducers: {
         loginReducer: (state, action) => {
-            state.isAuthenticated = action.payload;
-            state.user = action.payload;
+            console.log(action)
+            state.isAuthenticated = true;
+            state.user = action.payload.data;
         },
         registerReducer: (state, action) => {
             state.isAuthenticated = action.payload;

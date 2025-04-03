@@ -1,13 +1,12 @@
 import React from 'react';
 import { Outlet, Navigate } from 'react-router-dom';
-import { connect } from 'react-redux';
+import { useSelector } from 'react-redux';
 
-const ProtectedRoutes = (props) => {
-    return props.isAuthenticated ? <Outlet/> : <Navigate to="/login"/>
+const ProtectedRoute = ({ children }) => {
+    const isAuthenticated = useSelector((state) => state.session.isAuthenticated);
+    console.log(`The user is auhenticated: ${isAuthenticated}`)
+    return isAuthenticated ? children : <Navigate to="/login"/>
 } 
 
-const mapStateToProps = state => ({
-    isAuthenticated: state.session.isAuthenticated
-})
 
-export default connect(mapStateToProps, null)(ProtectedRoutes);
+export default ProtectedRoute;

@@ -4,8 +4,10 @@ import App from './App';
 import store from './store';
 import { Provider } from 'react-redux';
 import reportWebVitals from './reportWebVitals';
+import Cookies from 'js-cookie'
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
+console.log(Cookies, { path: "/api"} )
 root.render(
   <React.StrictMode>
     <Provider store={store}>

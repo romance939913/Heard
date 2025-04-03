@@ -274,7 +274,7 @@ def login():
     access_token = create_access_token(identity=user.email)
     response = make_response("Cookie set")
     response.set_cookie('access_token', access_token, path='/api')
-    return jsonify(access_token=access_token), 200
+    return { "email": user.email, "username": user.username, "id": user.id }, 200
 
 
 # @app.after_request

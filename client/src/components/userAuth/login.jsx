@@ -4,6 +4,7 @@ import { loginReducer } from '../../reducers/sessionReducer';
 import { errorReducer, removeErrorReducer } from '../../reducers/errorsReducer';
 import { login } from '../../util/sessionUtil';
 
+
 function Login() {
   const dispatch = useDispatch()
   const [formData, setFormData] = useState({
@@ -19,11 +20,11 @@ function Login() {
     }));
   };
 
-  const handleSubmit = async (event) => {
-    event.preventDefault();
+  const handleSubmit = (e) => {
+    e.preventDefault();
     login(formData)
       .then((response) => {
-        dispatch(loginReducer({}, response))
+        dispatch(loginReducer(response.data))
       })
       .catch((e) => {
         dispatch(errorReducer(e))
@@ -51,7 +52,6 @@ function Login() {
         />
         <button type="submit">login</button>
       </form>
-
     </div>
   );
 }
