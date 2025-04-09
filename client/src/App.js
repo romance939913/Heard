@@ -1,28 +1,26 @@
-import React, { Fragment } from 'react'
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import Login from './components/userAuth/login';
-import Signin from './components/userAuth/signin';
+import Signin from './components/userAuth/register';
 import Feed from './components/feed/feed';
-import ProtectedRoute from './protectedRoutes';
+import Layout from './Layout';
+import { Routes, Route } from 'react-router-dom';
+import RequireAuth from './components/RequireAuth/RequireAuth';
 
 function App() {
   return (
-    <BrowserRouter>
       <Routes>
-        <Fragment>
+        <Route element={<Layout />}>
+          {/*public routes*/}
           <Route element={<Login />} path="/login" />
-          <Route element={<Signin />} path="/signin" />
-          <Route
-            path="/"
-            element={
-              <ProtectedRoute>
-                <Feed />
-              </ProtectedRoute>
-            }
-          />
-        </Fragment>
+          <Route element={<Signin />} path="/register" />
+
+          {/*protected routes*/}
+          <Route element={<RequireAuth />}>
+            <Route element={<Feed />} path="/" />
+          </Route>
+
+          {/*Catch all*/}
+        </Route>
       </Routes>
-    </BrowserRouter>
   )
 }
 

@@ -14,7 +14,7 @@ CORS(app)
 bcrypt = Bcrypt(app)
 
 # setup JWT and database
-app.config['SQLALCHEMY_DATABASE_URI'] = f"postgresql://brennanromance:{Config.POSTGRESQL_PASSWORD}@localhost/heard"
+app.config['SQLALCHEMY_DATABASE_URI'] = f"postgresql://postgres:{Config.POSTGRESQL_PASSWORD}@localhost/heard"
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['JWT_TOKEN_LOCATION'] = ['cookies']
 app.config['JWT_ACCESS_COOKIE_PATH'] = '/api/'
@@ -274,7 +274,7 @@ def login():
     access_token = create_access_token(identity=user.email)
     response = make_response("Cookie set")
     response.set_cookie('access_token', access_token, path='/api')
-    return { "email": user.email, "username": user.username, "id": user.id }, 200
+    return { "email": user.email, "username": user.username, "id": user.id, "access_token": access_token }, 200
 
 
 # @app.after_request

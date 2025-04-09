@@ -1,16 +1,17 @@
-import React, { useState } from 'react';
-import { useDispatch } from 'react-redux';
-import { loginReducer } from '../../reducers/sessionReducer';
-import { errorReducer, removeErrorReducer } from '../../reducers/errorsReducer';
+import React, { useState, useContext } from 'react';
+import { AuthContext } from '../../context/authProvider';
 import { login } from '../../util/sessionUtil';
-
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 
 function Login() {
-  const dispatch = useDispatch()
   const [formData, setFormData] = useState({
     email: '',
     password: ''
   });
+  const { auth, setAuth } = useContext(AuthContext);
+  const navigate = useNavigate();
+  const location = useLocation();
+  const from = location.state?.from?.pathname || "/";
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -24,11 +25,16 @@ function Login() {
     e.preventDefault();
     login(formData)
       .then((response) => {
-        dispatch(loginReducer(response.data))
+        const email = response?.data?.email;
+        const id = response?.data?.id;
+        const username = response?.data?.username;
+        const access_token = response?.data?.access_token;
+        debugger
+        setAuth({ email, id, username, access_token});
+        navigate(from, { replace: true });
       })
-      .catch((e) => {
-        dispatch(errorReducer(e))
-        setTimeout(() => { removeErrorReducer() }, 3000);
+      .catch((err) => {
+        console.log(err)
       })
   }
 
