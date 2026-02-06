@@ -3,6 +3,13 @@ DROP TABLE IF EXISTS post;
 DROP TABLE IF EXISTS users;
 DROP TABLE IF EXISTS company;
 
+CREATE TABLE users (
+    id SERIAL PRIMARY KEY,
+    username VARCHAR(50) NOT NULL UNIQUE,
+    email VARCHAR(255) NOT NULL UNIQUE,
+    password VARCHAR(255) NOT NULL
+);
+
 CREATE TABLE company (
     id SERIAL PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
@@ -14,13 +21,6 @@ CREATE TABLE company (
     date_incorporated DATE,
     user_id INTEGER REFERENCES users(id) ON DELETE SET NULL
     );
-
-CREATE TABLE users (
-    id SERIAL PRIMARY KEY,
-    username VARCHAR(50) NOT NULL UNIQUE,
-    email VARCHAR(255) NOT NULL UNIQUE,
-    password VARCHAR(255) NOT NULL
-);
 
 CREATE TABLE post (
     id SERIAL PRIMARY KEY,
