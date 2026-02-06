@@ -32,8 +32,22 @@ func (r *PostRepo) Update(ctx context.Context, pModel *models.Post) error {
 }
 
 func (r *PostRepo) Delete(ctx context.Context, id int) error {
-    _, err := r.db.ExecContext(ctx, `DELETE FROM post WHERE id=$1`, id)
-    return err
+    tx, err := r.db.BeginTx(ctx, nil)
+    if err != nil {
+        return err
+    }
+
+    if _, err := tx.ExecContext(ctx, `DELETE FROM comment WHERE post_id=$1`, id); err != nil {
+        tx.Rollback()
+        return err
+    }
+
+    if _, err := tx.ExecContext(ctx, `DELETE FROM post WHERE id=$1`, id); err != nil {
+        tx.Rollback()
+        return err
+    }
+
+    return tx.Commit()
 }
 
 func (r *PostRepo) List(ctx context.Context) ([]*models.Post, error) {

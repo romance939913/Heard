@@ -8,7 +8,7 @@ Quick start
 
 ```bash
 go mod tidy
-DATABASE_URL="postgres://user:pass@localhost:5432/heard?sslmode=disable" go run ./cmd/api
+go run ./cmd/api
 ```
 
 Endpoints

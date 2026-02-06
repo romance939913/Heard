@@ -214,6 +214,13 @@ func (h *Handler) companiesHandlerPOST(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
+	// Set user_id from authenticated user
+	claims, err := GetUserClaimsFromContext(ctx)
+	if err != nil {
+		http.Error(w, "unauthorized", http.StatusUnauthorized)
+		return
+	}
+	c.UserID = &claims.UserID
 	if err := h.companies.Create(ctx, &c); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -234,6 +241,13 @@ func (h *Handler) companiesHandlerPUT(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	c.ID = id
+	// Prevent user from changing the user_id field on update
+	claims, err := GetUserClaimsFromContext(ctx)
+	if err != nil {
+		http.Error(w, "unauthorized", http.StatusUnauthorized)
+		return
+	}
+	c.UserID = &claims.UserID
 	if err := h.companies.Update(ctx, &c); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
