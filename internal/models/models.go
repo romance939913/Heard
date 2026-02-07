@@ -27,8 +27,7 @@ type Post struct {
 	Description *string   `json:"description,omitempty"`
 	CompanyID   *int      `json:"company_id,omitempty"`
 	UserID      int       `json:"user_id"`
-	Upvotes     int       `json:"upvotes"`
-	Downvotes   int       `json:"downvotes"`
+	Likes       int       `json:"likes"`
 	CreatedAt   time.Time `json:"created_at"`
 	UpdatedAt   time.Time `json:"updated_at"`
 }
@@ -38,8 +37,7 @@ type Comment struct {
 	Message   string    `json:"message"`
 	PostID    int       `json:"post_id"`
 	UserID    int       `json:"user_id"`
-	Upvotes   int       `json:"upvotes"`
-	Downvotes int       `json:"downvotes"`
+	Likes     int       `json:"likes"`
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
 }

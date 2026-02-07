@@ -1,7 +1,9 @@
+DROP TABLE IF EXISTS post_likes;
+DROP TABLE IF EXISTS comment_likes;
 DROP TABLE IF EXISTS comment;
 DROP TABLE IF EXISTS post;
-DROP TABLE IF EXISTS users;
 DROP TABLE IF EXISTS company;
+DROP TABLE IF EXISTS users;
 
 CREATE TABLE users (
     id SERIAL PRIMARY KEY,
@@ -12,7 +14,7 @@ CREATE TABLE users (
 
 CREATE TABLE company (
     id SERIAL PRIMARY KEY,
-    name VARCHAR(255) NOT NULL,
+    name VARCHAR(255) NOT NULL UNIQUE,
     description TEXT,
     parent_company_id INTEGER REFERENCES company(id) ON DELETE SET NULL,
     industry VARCHAR(255),
@@ -28,8 +30,7 @@ CREATE TABLE post (
     description TEXT,
     company_id INTEGER NOT NULL REFERENCES company(id) ON DELETE SET NULL,
     user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-    upvotes INTEGER NOT NULL DEFAULT 0 CHECK (upvotes >= 0),
-    downvotes INTEGER NOT NULL DEFAULT 0 CHECK (downvotes >= 0),
+    likes INTEGER NOT NULL DEFAULT 0,
     created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
@@ -39,10 +40,26 @@ CREATE TABLE comment (
     message TEXT NOT NULL,
     post_id INTEGER NOT NULL REFERENCES post(id) ON DELETE CASCADE,
     user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-        upvotes INTEGER NOT NULL DEFAULT 0 CHECK (upvotes >= 0),
-        downvotes INTEGER NOT NULL DEFAULT 0 CHECK (downvotes >= 0),
-        created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
-        updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+    likes INTEGER NOT NULL DEFAULT 0,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+-- Likes join tables
+CREATE TABLE post_likes (
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    post_id INTEGER NOT NULL REFERENCES post(id) ON DELETE CASCADE,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    UNIQUE(user_id, post_id)
+);
+
+CREATE TABLE comment_likes (
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    comment_id INTEGER NOT NULL REFERENCES comment(id) ON DELETE CASCADE,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    UNIQUE(user_id, comment_id)
 );
 
 -- Trigger function to keep updated_at current on UPDATE

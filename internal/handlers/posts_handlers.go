@@ -29,7 +29,7 @@ func (h *Handler) postsHandlerGET(w http.ResponseWriter, req *http.Request) {
 func (h *Handler) postsHandlerPOST(w http.ResponseWriter, req *http.Request) {
 	ctx := req.Context()
 	var p models.Post
-	
+
 	if err := json.NewDecoder(req.Body).Decode(&p); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
@@ -42,14 +42,41 @@ func (h *Handler) postsHandlerPOST(w http.ResponseWriter, req *http.Request) {
 	}
 	p.UserID = claims.UserID
 
-	// Reset upvotes and downvotes to 0 (cannot be set by client)
-	p.Upvotes = 0
-	p.Downvotes = 0
+	// Reset likes to 0 (cannot be set by client)
+	p.Likes = 0
 	if err := h.posts.Create(ctx, &p); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 	writeJSON(w, p, http.StatusCreated)
+}
+
+type likePostRequest struct {
+	PostID int `json:"post_id"`
+}
+
+func (h *Handler) likePostHandler(w http.ResponseWriter, req *http.Request) {
+	if req.Method != http.MethodPost {
+		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+	ctx := req.Context()
+	var r likePostRequest
+	if err := json.NewDecoder(req.Body).Decode(&r); err != nil {
+		http.Error(w, "invalid request body", http.StatusBadRequest)
+		return
+	}
+	claims, err := GetUserClaimsFromContext(ctx)
+	if err != nil {
+		http.Error(w, "unauthorized", http.StatusUnauthorized)
+		return
+	}
+	liked, err := h.posts.ToggleLike(ctx, claims.UserID, r.PostID)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	writeJSON(w, map[string]bool{"liked": liked}, http.StatusOK)
 }
 
 func (h *Handler) postsHandlerPUT(w http.ResponseWriter, req *http.Request) {

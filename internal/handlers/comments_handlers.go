@@ -47,6 +47,34 @@ func (h *Handler) commentsHandlerPOST(w http.ResponseWriter, req *http.Request) 
 	writeJSON(w, c, http.StatusCreated)
 }
 
+type likeCommentRequest struct {
+	CommentID int `json:"comment_id"`
+}
+
+func (h *Handler) likeCommentHandler(w http.ResponseWriter, req *http.Request) {
+	if req.Method != http.MethodPost {
+		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+	ctx := req.Context()
+	var r likeCommentRequest
+	if err := json.NewDecoder(req.Body).Decode(&r); err != nil {
+		http.Error(w, "invalid request body", http.StatusBadRequest)
+		return
+	}
+	claims, err := GetUserClaimsFromContext(ctx)
+	if err != nil {
+		http.Error(w, "unauthorized", http.StatusUnauthorized)
+		return
+	}
+	liked, err := h.comments.ToggleLike(ctx, claims.UserID, r.CommentID)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	writeJSON(w, map[string]bool{"liked": liked}, http.StatusOK)
+}
+
 func (h *Handler) commentsHandlerPUT(w http.ResponseWriter, req *http.Request) {
 	ctx := req.Context()
 	id, ok := idFromQuery(req)

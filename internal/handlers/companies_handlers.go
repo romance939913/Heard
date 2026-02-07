@@ -41,7 +41,11 @@ func (h *Handler) companiesHandlerPOST(w http.ResponseWriter, req *http.Request)
 	}
 	c.UserID = &claims.UserID
 	if err := h.companies.Create(ctx, &c); err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		if isDuplicateKeyError(err) {
+			http.Error(w, "company with this name already exists", http.StatusConflict)
+		} else {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+		}
 		return
 	}
 	writeJSON(w, c, http.StatusCreated)
@@ -101,7 +105,11 @@ func (h *Handler) companiesHandlerPATCH(w http.ResponseWriter, req *http.Request
 	}
 	// user_id cannot be changed
 	if err := h.companies.Update(ctx, existing); err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		if isDuplicateKeyError(err) {
+			http.Error(w, "company with this name already exists", http.StatusConflict)
+		} else {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+		}
 		return
 	}
 	writeJSON(w, existing, http.StatusOK)

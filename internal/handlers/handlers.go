@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 	"strconv"
+	"strings"
 
 	"github.com/brennanromance/heard/internal/repo"
 )
@@ -40,6 +41,10 @@ func (h *Handler) RegisterRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("POST /comments", h.AuthMiddleware(h.commentsHandlerPOST))
 	mux.HandleFunc("PUT /comments", h.AuthMiddleware(h.commentsHandlerPUT))
 	mux.HandleFunc("DELETE /comments", h.AuthMiddleware(h.commentsHandlerDELETE))
+
+	// Like endpoints
+	mux.HandleFunc("POST /likecomment", h.AuthMiddleware(h.likeCommentHandler))
+	mux.HandleFunc("POST /likepost", h.AuthMiddleware(h.likePostHandler))
 }
 
 func idFromQuery(req *http.Request) (int, bool) {
@@ -58,4 +63,11 @@ func writeJSON(w http.ResponseWriter, v interface{}, code int) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(code)
 	_ = json.NewEncoder(w).Encode(v)
+}
+
+func isDuplicateKeyError(err error) bool {
+	if err == nil {
+		return false
+	}
+	return strings.Contains(err.Error(), "duplicate key") || strings.Contains(err.Error(), "UNIQUE")
 }
