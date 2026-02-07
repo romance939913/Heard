@@ -24,28 +24,28 @@ type AuthResponse struct {
 	Message string       `json:"message,omitempty"`
 }
 
-func (h *Handler) signupHandler(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodPost {
+func (h *Handler) signupHandler(w http.ResponseWriter, req *http.Request) {
+	if req.Method != http.MethodPost {
 		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
 		return
 	}
 
-	ctx := r.Context()
-	var req SignupRequest
-	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+	ctx := req.Context()
+	var reqBody SignupRequest
+	if err := json.NewDecoder(req.Body).Decode(&reqBody); err != nil {
 		http.Error(w, "invalid request body", http.StatusBadRequest)
 		return
 	}
 
 	// Check if user already exists
-	_, err := h.users.GetByEmail(ctx, req.Email)
+	_, err := h.users.GetByEmail(ctx, reqBody.Email)
 	if err == nil {
 		http.Error(w, "user with this email already exists", http.StatusConflict)
 		return
 	}
 
 	// Check if username already exists
-	_, err = h.users.GetByUsername(ctx, req.Username)
+	_, err = h.users.GetByUsername(ctx, reqBody.Username)
 	if err == nil {
 		http.Error(w, "username already taken", http.StatusConflict)
 		return
@@ -53,9 +53,9 @@ func (h *Handler) signupHandler(w http.ResponseWriter, r *http.Request) {
 
 	// Create user
 	user := &models.User{
-		Username: req.Username,
-		Email:    req.Email,
-		Password: req.Password,
+		Username: reqBody.Username,
+		Email:    reqBody.Email,
+		Password: reqBody.Password,
 	}
 
 	if err := h.users.Create(ctx, user); err != nil {
@@ -77,28 +77,28 @@ func (h *Handler) signupHandler(w http.ResponseWriter, r *http.Request) {
 	}, http.StatusCreated)
 }
 
-func (h *Handler) loginHandler(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodPost {
+func (h *Handler) loginHandler(w http.ResponseWriter, req *http.Request) {
+	if req.Method != http.MethodPost {
 		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
 		return
 	}
 
-	ctx := r.Context()
-	var req LoginRequest
-	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+	ctx := req.Context()
+	var loginReq LoginRequest
+	if err := json.NewDecoder(req.Body).Decode(&loginReq); err != nil {
 		http.Error(w, "invalid request body", http.StatusBadRequest)
 		return
 	}
 
 	// Find user by email
-	user, err := h.users.GetByEmail(ctx, req.Email)
+	user, err := h.users.GetByEmail(ctx, loginReq.Email)
 	if err != nil {
 		http.Error(w, "invalid email or password", http.StatusUnauthorized)
 		return
 	}
 
 	// Verify password
-	if err := h.users.VerifyPassword(ctx, user.ID, req.Password); err != nil {
+	if err := h.users.VerifyPassword(ctx, user.ID, loginReq.Password); err != nil {
 		http.Error(w, "invalid email or password", http.StatusUnauthorized)
 		return
 	}
@@ -117,8 +117,8 @@ func (h *Handler) loginHandler(w http.ResponseWriter, r *http.Request) {
 	}, http.StatusOK)
 }
 
-func (h *Handler) logoutHandler(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodPost {
+func (h *Handler) logoutHandler(w http.ResponseWriter, req *http.Request) {
+	if req.Method != http.MethodPost {
 		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
 		return
 	}

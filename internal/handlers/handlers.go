@@ -28,7 +28,7 @@ func (h *Handler) RegisterRoutes(mux *http.ServeMux) {
 	// Protected routes
 	mux.HandleFunc("GET /companies", h.AuthMiddleware(h.companiesHandlerGET))
 	mux.HandleFunc("POST /companies", h.AuthMiddleware(h.companiesHandlerPOST))
-	mux.HandleFunc("PUT /companies", h.AuthMiddleware(h.companiesHandlerPUT))
+	mux.HandleFunc("PATCH /companies", h.AuthMiddleware(h.companiesHandlerPATCH))
 	mux.HandleFunc("DELETE /companies", h.AuthMiddleware(h.companiesHandlerDELETE))
 
 	mux.HandleFunc("GET /posts", h.AuthMiddleware(h.postsHandlerGET))
@@ -42,8 +42,8 @@ func (h *Handler) RegisterRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("DELETE /comments", h.AuthMiddleware(h.commentsHandlerDELETE))
 }
 
-func idFromQuery(r *http.Request) (int, bool) {
-	qs := r.URL.Query().Get("id")
+func idFromQuery(req *http.Request) (int, bool) {
+	qs := req.URL.Query().Get("id")
 	if qs == "" {
 		return 0, false
 	}

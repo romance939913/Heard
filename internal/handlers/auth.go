@@ -63,8 +63,8 @@ func ValidateToken(tokenString string) (*Claims, error) {
 
 // AuthMiddleware is a middleware that checks for JWT in Authorization header
 func (h *Handler) AuthMiddleware(next http.HandlerFunc) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		authHeader := r.Header.Get("Authorization")
+	return func(w http.ResponseWriter, req *http.Request) {
+		authHeader := req.Header.Get("Authorization")
 		if authHeader == "" {
 			http.Error(w, "missing authorization header", http.StatusUnauthorized)
 			return
@@ -84,8 +84,8 @@ func (h *Handler) AuthMiddleware(next http.HandlerFunc) http.HandlerFunc {
 		}
 
 		// Add claims to context
-		ctx := context.WithValue(r.Context(), userClaimsKey, claims)
-		next(w, r.WithContext(ctx))
+		ctx := context.WithValue(req.Context(), userClaimsKey, claims)
+		next(w, req.WithContext(ctx))
 	}
 }
 

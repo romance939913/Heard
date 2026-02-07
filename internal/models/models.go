@@ -1,5 +1,7 @@
 package models
 
+import "time"
+
 type Company struct {
 	ID               int     `json:"id"`
 	Name             string  `json:"name"`
@@ -20,20 +22,24 @@ type User struct {
 }
 
 type Post struct {
-	ID          int     `json:"id"`
-	Title       string  `json:"title"`
-	Description *string `json:"description,omitempty"`
-	CompanyID   *int    `json:"company_id,omitempty"`
-	UserID      int     `json:"user_id"`
-	Upvotes     int     `json:"upvotes"`
-	Downvotes   int     `json:"downvotes"`
+	ID          int       `json:"id"`
+	Title       string    `json:"title"`
+	Description *string   `json:"description,omitempty"`
+	CompanyID   *int      `json:"company_id,omitempty"`
+	UserID      int       `json:"user_id"`
+	Upvotes     int       `json:"upvotes"`
+	Downvotes   int       `json:"downvotes"`
+	CreatedAt   time.Time `json:"created_at"`
+	UpdatedAt   time.Time `json:"updated_at"`
 }
 
 type Comment struct {
-	ID        int    `json:"id"`
-	Message   string `json:"message"`
-	PostID    int    `json:"post_id"`
-	UserID    int    `json:"user_id"`
-	Upvotes   int    `json:"upvotes"`
-	Downvotes int    `json:"downvotes"`
+	ID        int       `json:"id"`
+	Message   string    `json:"message"`
+	PostID    int       `json:"post_id"`
+	UserID    int       `json:"user_id"`
+	Upvotes   int       `json:"upvotes"`
+	Downvotes int       `json:"downvotes"`
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
 }

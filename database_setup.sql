@@ -26,10 +26,12 @@ CREATE TABLE post (
     id SERIAL PRIMARY KEY,
     title VARCHAR(255) NOT NULL,
     description TEXT,
-    company_id INTEGER REFERENCES company(id) ON DELETE SET NULL,
+    company_id INTEGER NOT NULL REFERENCES company(id) ON DELETE SET NULL,
     user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     upvotes INTEGER NOT NULL DEFAULT 0 CHECK (upvotes >= 0),
-    downvotes INTEGER NOT NULL DEFAULT 0 CHECK (downvotes >= 0)
+    downvotes INTEGER NOT NULL DEFAULT 0 CHECK (downvotes >= 0),
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
 CREATE TABLE comment (
@@ -37,9 +39,30 @@ CREATE TABLE comment (
     message TEXT NOT NULL,
     post_id INTEGER NOT NULL REFERENCES post(id) ON DELETE CASCADE,
     user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-    upvotes INTEGER NOT NULL DEFAULT 0 CHECK (upvotes >= 0),
-    downvotes INTEGER NOT NULL DEFAULT 0 CHECK (downvotes >= 0)
+        upvotes INTEGER NOT NULL DEFAULT 0 CHECK (upvotes >= 0),
+        downvotes INTEGER NOT NULL DEFAULT 0 CHECK (downvotes >= 0),
+        created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+        updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
+
+-- Trigger function to keep updated_at current on UPDATE
+CREATE OR REPLACE FUNCTION trigger_set_updated_at()
+RETURNS TRIGGER AS $$
+BEGIN
+    NEW.updated_at = now();
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER post_set_updated_at
+BEFORE UPDATE ON post
+FOR EACH ROW
+EXECUTE FUNCTION trigger_set_updated_at();
+
+CREATE TRIGGER comment_set_updated_at
+BEFORE UPDATE ON comment
+FOR EACH ROW
+EXECUTE FUNCTION trigger_set_updated_at();
 
 
 INSERT INTO company (name, industry, sub_industry, headquarters, date_incorporated) VALUES
