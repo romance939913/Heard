@@ -1,3 +1,4 @@
+-- Drop existing tables if they exist
 DROP TABLE IF EXISTS post_likes;
 DROP TABLE IF EXISTS comment_likes;
 DROP TABLE IF EXISTS comment;
@@ -5,6 +6,7 @@ DROP TABLE IF EXISTS post;
 DROP TABLE IF EXISTS company;
 DROP TABLE IF EXISTS users;
 
+-- Create tables
 CREATE TABLE users (
     id SERIAL PRIMARY KEY,
     username VARCHAR(50) NOT NULL UNIQUE,
@@ -454,7 +456,6 @@ INSERT INTO company (name, industry, sub_industry, headquarters, date_incorporat
 ('Union Pacific Corporation', 'Industrials', 'Rail Transportation', 'Omaha, Nebraska', '1957-03-04'),
 ('Cigna', 'Health Care', 'Health Care Services', 'Bloomfield, Connecticut', '1976-06-30'),
 ('Royal Caribbean Group', 'Consumer Discretionary', 'Hotels, Resorts & Cruise Lines', 'Miami, Florida', '2014-12-05'),
-('Fiserv', 'Financials', 'Transaction & Payment Processing Services', 'Brookfield, Wisconsin', '2001-04-02'),
 ('T. Rowe Price', 'Financials', 'Asset Management & Custody Banks', 'Baltimore, Maryland', '2019-07-29'),
 ('Netflix', 'Communication Services', 'Movies & Entertainment', 'Los Gatos, California', '2010-12-20'),
 ('Insulet Corporation', 'Health Care', 'Health Care Equipment', 'Acton, Massachusetts', '2023-03-15'),
@@ -558,7 +559,6 @@ INSERT INTO company (name, industry, sub_industry, headquarters, date_incorporat
 ('Williams-Sonoma, Inc.', 'Consumer Discretionary', 'Homefurnishing Retail', 'San Francisco, California', '2025-03-24'),
 ('Mettler Toledo', 'Health Care', 'Life Sciences Tools & Services', 'Columbus, Ohio', '2016-09-06'),
 ('Viatris', 'Health Care', 'Pharmaceuticals', 'Pittsburgh, Pennsylvania', '2004-04-23'),
-('Marsh McLennan', 'Financials', 'Insurance Brokers', 'New York City, New York', '1987-08-31'),
 ('Goldman Sachs', 'Financials', 'Investment Banking & Brokerage', 'New York City, New York', '2002-07-22'),
 ('Las Vegas Sands', 'Consumer Discretionary', 'Casinos & Gaming', 'Las Vegas, Nevada', '2019-10-03'),
 ('Oneok', 'Energy', 'Oil & Gas Storage & Transportation', 'Tulsa, Oklahoma', '2010-03-15'),

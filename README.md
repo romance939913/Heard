@@ -3,8 +3,12 @@
 Quick start
 
 1. Set up Postgres and create the `heard` database (or update `DATABASE_URL`).
-2. Apply `database_setup.sql` to create tables and seed data.
-3. Run:
+2. Copy the `.env.example` file to `.env` and update the environment variables as needed:
+   ```bash
+   cp .env.example .env
+   ```
+3. Apply `database_setup.sql` to create tables and seed data.
+4. Run:
 
 ```bash
 go mod tidy
